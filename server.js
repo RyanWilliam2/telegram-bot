@@ -9,7 +9,7 @@ app.use(express.json());
 
 let users = {};
 
-// Get user + passive income
+// Get user (with passive income)
 app.post('/user', (req, res) => {
   const { userId } = req.body;
 
@@ -18,8 +18,7 @@ app.post('/user', (req, res) => {
       coins: 0,
       level: 1,
       income: 1,
-      lastUpdate: Date.now(),
-      boost: false
+      lastUpdate: Date.now()
     };
   }
 
@@ -28,21 +27,22 @@ app.post('/user', (req, res) => {
   const now = Date.now();
   const seconds = (now - user.lastUpdate) / 1000;
 
-  const multiplier = user.boost ? 2 : 1;
-  user.coins += seconds * user.income * multiplier;
+  user.coins += seconds * user.income;
   user.lastUpdate = now;
 
   res.json(user);
 });
 
-// Upgrade
+// Upgrade (max level 5)
 app.post('/upgrade', (req, res) => {
   const { userId } = req.body;
   const user = users[userId];
 
+  if (!user) return res.json({ error: "User not found" });
+
   const cost = user.level * 10;
 
-  if (user.coins >= cost) {
+  if (user.coins >= cost && user.level < 5) {
     user.coins -= cost;
     user.level += 1;
     user.income += 1;
@@ -51,26 +51,9 @@ app.post('/upgrade', (req, res) => {
   res.json(user);
 });
 
-// Boost
-app.post('/boost', (req, res) => {
-  const { userId } = req.body;
-  const user = users[userId];
-
-  user.boost = true;
-
-  setTimeout(() => {
-    user.boost = false;
-  }, 30000);
-
-  res.json({ message: "Boost active" });
-});
-
 app.get('/', (req, res) => {
-  res.send('Backend running');
+  res.send("Backend running");
 });
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
-});
+app.listen(PORT, () => console.log("Server running"));
