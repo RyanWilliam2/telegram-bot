@@ -7,7 +7,7 @@ app.use(express.json());
 
 let users = {};
 
-// NEW: get user data
+// Get user data
 app.post('/user', (req, res) => {
   const { userId } = req.body;
 
@@ -18,7 +18,7 @@ app.post('/user', (req, res) => {
   res.json(users[userId]);
 });
 
-// EXISTING: tap endpoint
+// Tap endpoint (increase coins)
 app.post('/tap', (req, res) => {
   const { userId } = req.body;
 
@@ -31,6 +31,14 @@ app.post('/tap', (req, res) => {
   res.json(users[userId]);
 });
 
-app.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+// Root route (for testing in browser)
+app.get('/', (req, res) => {
+  res.send('Bot backend is running');
+});
+
+// IMPORTANT: Render-compatible port
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
 });
